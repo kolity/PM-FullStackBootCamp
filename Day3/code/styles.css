@@ -1,0 +1,41 @@
+/* page background */
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #ffffff;
+  margin: 0;
+  padding: 2rem;
+}
+
+/* outer white card with thin border */
+.card {
+  max-width: 700px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+/* inner light-grey container — this is the flex parent */
+.container {
+  background: #f1f5f9;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  min-height: 120px;
+
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;       /* keeps boxes at the top */
+  justify-content: flex-start;   /* keeps boxes to the left (this is the default) */
+}
+
+/* the three blue numbered boxes */
+.box {
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  color: #1e3a8a;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 1rem 1.5rem;
+  min-width: 50px;
+  text-align: center;
+}

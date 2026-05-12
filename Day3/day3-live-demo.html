@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Day 3 Live Demo — Flexbox, Grid &amp; Responsive</title>
+  <style>
+    /* ============================================================
+       PAGE STYLES (not the lesson — just the wrapper)
+       Students should ignore everything in this top block.
+       ============================================================ */
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --ink: #0f172a;
+      --ink-dim: #475569;
+      --border: #e2e8f0;
+      --accent: #1e3a8a;
+      --accent-light: #dbeafe;
+      --accent-mid: #93c5fd;
+      --accent-strong: #2563eb;
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+      --code-blue: #93c5fd;
+      --code-yellow: #fde68a;
+      --warn: #f59e0b;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    .page-header {
+      background: var(--accent);
+      color: white;
+      padding: 2rem clamp(1rem, 4vw, 3rem);
+    }
+    .page-header h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+    }
+    .page-header p { margin: 0; opacity: 0.9; }
+    .page-header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+    }
+
+    .toc {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 1rem clamp(1rem, 4vw, 3rem);
+      font-size: 0.875rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .toc ol {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .toc a {
+      color: var(--ink-dim);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .toc a:hover { color: var(--accent-strong); }
+
+    section.lesson {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem clamp(1rem, 4vw, 3rem);
+      border-bottom: 1px solid var(--border);
+    }
+    section.lesson > h2 {
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem;
+      color: var(--accent);
+    }
+    section.lesson > .teach-note {
+      font-size: 0.875rem;
+      color: var(--ink-dim);
+      margin: 0 0 1.5rem;
+      padding: 0.75rem 1rem;
+      background: #fef9c3;
+      border-left: 3px solid var(--warn);
+      border-radius: 0.25rem;
+    }
+    section.lesson > .teach-note strong { color: var(--ink); }
+
+    .demo-pair {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (min-width: 768px) {
+      .demo-pair { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    }
+    .demo-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      margin: 0 0 0.5rem;
+      font-weight: 600;
+    }
+    pre.code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 1rem 1.25rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin: 0;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.8125rem;
+      line-height: 1.55;
+    }
+    pre.code .sel  { color: var(--code-yellow); }
+    pre.code .prop { color: var(--code-blue); }
+    pre.code .com  { color: #94a3b8; font-style: italic; }
+
+    .result-frame {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+
+    /* generic demo-box style used by lesson examples */
+    .box {
+      background: var(--accent-light);
+      border: 1px solid var(--accent-mid);
+      color: var(--accent);
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+      border-radius: 0.375rem;
+      text-align: center;
+      min-width: 60px;
+    }
+    .box.strong { background: var(--accent-mid); }
+
+
+    /* ============================================================
+       === LESSON CSS STARTS HERE — this is what students learn ===
+       Each block below is labelled with which section it belongs to.
+       Edit these live in DevTools while teaching.
+       ============================================================ */
+
+
+    /* -------- §1  THE TWO AXES -------- */
+    .axes-row {
+      display: flex;
+      flex-direction: row;
+      gap: 0.75rem;
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 0.375rem;
+    }
+    .axes-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 0.375rem;
+      height: 220px;
+    }
+
+
+    /* -------- §2  JUSTIFY-CONTENT (main axis) -------- */
+    .jc-start    { display: flex; gap: 0.5rem; justify-content: flex-start;    background:#f1f5f9; padding:1rem; border-radius:.375rem; }
+    .jc-center   { display: flex; gap: 0.5rem; justify-content: center;        background:#f1f5f9; padding:1rem; border-radius:.375rem; }
+    .jc-end      { display: flex; gap: 0.5rem; justify-content: flex-end;      background:#f1f5f9; padding:1rem; border-radius:.375rem; }
+    .jc-between  { display: flex;              justify-content: space-between; background:#f1f5f9; padding:1rem; border-radius:.375rem; }
+    .jc-around   { display: flex;              justify-content: space-around;  background:#f1f5f9; padding:1rem; border-radius:.375rem; }
+    .jc-evenly   { display: flex;              justify-content: space-evenly;  background:#f1f5f9; padding:1rem; border-radius:.375rem; }
+
+
+    /* -------- §3  ALIGN-ITEMS (cross axis) -------- */
+    .ai-base     { display:flex; gap:.5rem; background:#f1f5f9; padding:1rem; border-radius:.375rem; height:160px; }
+    .ai-stretch  { align-items: stretch; }
+    .ai-center   { align-items: center; }
+    .ai-end      { align-items: flex-end; }
+    .ai-base .box { min-height: 0; }
+
+
+    /* -------- §4  flex: 1  vs  flex: 1 1 240px -------- */
+    .flex-equal {
+      display: flex;
+      gap: 1rem;
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 0.375rem;
+    }
+    .flex-equal .box { flex: 1; }
+
+    .flex-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 0.375rem;
+    }
+    .flex-wrap .box { flex: 1 1 240px; }
+
+
+    /* -------- §5  THREE CLASSIC PATTERNS -------- */
+
+    /* Pattern A — navbar */
+    .pat-navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+    }
+    .pat-navbar .logo {
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .pat-navbar nav {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .pat-navbar a {
+      color: var(--ink-dim);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .pat-navbar a:hover { color: var(--accent-strong); }
+
+    /* Pattern B — wrapping card row */
+    .pat-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .pat-cards .card-mini {
+      flex: 1 1 200px;
+      background: white;
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 0.5rem;
+    }
+
+    /* Pattern C — centred hero (the place-items trick) */
+    .pat-hero {
+      display: grid;
+      place-items: center;
+      min-height: 200px;
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: white;
+      border-radius: 0.5rem;
+      text-align: center;
+      padding: 1rem;
+    }
+    .pat-hero h3 { margin: 0; font-size: 1.5rem; }
+
+
+    /* -------- §6  CSS GRID GALLERY -------- */
+    .gallery-fit {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .gallery-fill {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .gallery-fit .card,
+    .gallery-fill .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .gallery-fit .card:hover,
+    .gallery-fill .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .gallery-fit .card .thumb,
+    .gallery-fill .card .thumb {
+      height: 80px;
+      background: linear-gradient(135deg, var(--accent-light), var(--accent-mid));
+      border-radius: 0.375rem;
+      margin-bottom: 0.5rem;
+    }
+    .gallery-fit .card h4,
+    .gallery-fill .card h4 {
+      margin: 0 0 0.25rem;
+      font-size: 0.95rem;
+      color: var(--accent);
+    }
+    .gallery-fit .card p,
+    .gallery-fill .card p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--ink-dim);
+    }
+
+
+    /* -------- §7  GRID TEMPLATE COLUMNS WITH FR -------- */
+    .grid-fr-1 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+    }
+    .grid-fr-2 {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      gap: 1rem;
+    }
+    .grid-fr-3 {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 1rem;
+    }
+
+
+    /* -------- §8  MEDIA QUERIES / MOBILE-FIRST -------- */
+    .responsive-demo {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 600px) {
+      .responsive-demo { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 1024px) {
+      .responsive-demo { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    }
+
+    .resp-card {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      text-align: center;
+    }
+    .resp-card .num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--accent-strong);
+    }
+
+
+    /* -------- §9  CLAMP() FLUID TYPOGRAPHY -------- */
+    .clamp-headline {
+      font-size: clamp(1.25rem, 5vw, 3rem);
+      margin: 0;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+    .clamp-meter {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.75rem;
+      color: var(--ink-dim);
+      margin-top: 0.5rem;
+    }
+
+
+    /* -------- §10  HOVER + TRANSITIONS -------- */
+    .hover-demo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+    .hover-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      text-align: center;
+      cursor: default;
+    }
+    .hover-card.t-fast { transition: transform 0.1s ease; }
+    .hover-card.t-mid  { transition: transform 0.2s ease; }
+    .hover-card.t-slow { transition: transform 0.6s ease; }
+    .hover-card.t-none { transition: none; }
+    .hover-card:hover { transform: translateY(-4px); }
+
+    .jank-demo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .jank-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      text-align: center;
+      width: 100%;
+    }
+    .jank-card.good { transition: transform 0.2s ease; }
+    .jank-card.good:hover { transform: scale(1.05); }
+    .jank-card.bad { transition: width 0.2s ease; }
+    .jank-card.bad:hover { width: 105%; }
+
+
+    /* -------- §11  COMMON PITFALL — flex item won't shrink -------- */
+    .shrink-demo {
+      display: flex;
+      gap: 1rem;
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 0.5rem;
+    }
+    .shrink-demo .item {
+      flex: 1;
+      background: white;
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      /* min-width: 0;  <-- uncomment in DevTools to see the fix */
+      overflow: hidden;
+    }
+    .shrink-demo .item .url {
+      font-family: ui-monospace, monospace;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+    <span class="badge">DAY 3 · LIVE DEMO</span>
+    <h1>Flexbox, Grid &amp; Responsive — live demo file</h1>
+    <p>Open DevTools (F12). Pick any element. Edit the CSS in the Styles panel. Watch what happens.</p>
+  </header>
+
+  <nav class="toc">
+    <ol>
+      <li><a href="#s1">1. Two axes</a></li>
+      <li><a href="#s2">2. justify-content</a></li>
+      <li><a href="#s3">3. align-items</a></li>
+      <li><a href="#s4">4. flex: 1</a></li>
+      <li><a href="#s5">5. Three patterns</a></li>
+      <li><a href="#s6">6. Grid gallery</a></li>
+      <li><a href="#s7">7. fr units</a></li>
+      <li><a href="#s8">8. Media queries</a></li>
+      <li><a href="#s9">9. clamp()</a></li>
+      <li><a href="#s10">10. Hover &amp; transitions</a></li>
+      <li><a href="#s11">11. Common pitfall</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================================================
+       §1  THE TWO AXES
+       ============================================================ -->
+  <section class="lesson" id="s1">
+    <h2>1. The two axes — main &amp; cross</h2>
+    <p class="teach-note"><strong>Teach this first.</strong> Everything in Flexbox depends on knowing which axis is which. In a <code>row</code>, main = horizontal, cross = vertical. Switch to <code>column</code> and they flip. Edit <code>flex-direction</code> in DevTools to demonstrate.</p>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">flex-direction: row (default)</p>
+        <pre class="code"><span class="sel">.axes-row</span> {
+  <span class="prop">display</span>: flex;
+  <span class="prop">flex-direction</span>: row;
+  <span class="prop">gap</span>: 0.75rem;
+}</pre>
+      </div>
+      <div class="result-frame">
+        <div class="axes-row">
+          <div class="box">1</div>
+          <div class="box">2</div>
+          <div class="box">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">flex-direction: column</p>
+        <pre class="code"><span class="sel">.axes-col</span> {
+  <span class="prop">display</span>: flex;
+  <span class="prop">flex-direction</span>: column;
+  <span class="prop">gap</span>: 0.75rem;
+}</pre>
+      </div>
+      <div class="result-frame">
+        <div class="axes-col">
+          <div class="box">1</div>
+          <div class="box">2</div>
+          <div class="box">3</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       §2  JUSTIFY-CONTENT (main axis)
+       ============================================================ -->
+  <section class="lesson" id="s2">
+    <h2>2. justify-content — alignment on the MAIN axis</h2>
+    <p class="teach-note"><strong>Live demo idea:</strong> show all six values back-to-back so students see the differences side by side. Most useful in practice: <code>space-between</code> (navbars) and <code>center</code> (centred buttons).</p>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">justify-content: flex-start (default)</p>
+        <pre class="code"><span class="prop">justify-content</span>: flex-start;</pre>
+      </div>
+      <div class="result-frame">
+        <div class="jc-start">
+          <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">justify-content: center</p>
+        <pre class="code"><span class="prop">justify-content</span>: center;</pre>
+      </div>
+      <div class="result-frame">
+        <div class="jc-center">
+          <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">justify-content: flex-end</p>
+        <pre class="code"><span class="prop">justify-content</span>: flex-end;</pre>
+      </div>
+      <div class="result-frame">
+        <div class="jc-end">
+          <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">justify-content: space-between &nbsp;<span style="color:var(--accent-strong)">★ classic navbar</span></p>
+        <pre class="code"><span class="prop">justify-content</span>: space-between;</pre>
+      </div>
+      <div class="result-frame">
+        <div class="jc-between">
+          <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">justify-content: space-around</p>
+        <pre class="code"><span class="prop">justify-content</span>: space-around;</pre>
+      </div>
+      <div class="result-frame">
+        <div class="jc-around">
+          <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">justify-content: space-evenly</p>
+        <pre class="code"><span class="prop">justify-content</span>: space-evenly;</pre>
+      </div>
+      <div class="result-frame">
+        <div class="jc-evenly">
+          <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       §3  ALIGN-ITEMS (cross axis)
+       ============================================================ -->
+  <section class="lesson" id="s3">
+    <h2>3. align-items — alignment on the CROSS axis</h2>
+    <p class="teach-note"><strong>The vertical-centring solution.</strong> Before flexbox, this was a 20-year-old CSS bug. <code>align-items: center</code> finally fixed it. Show <code>stretch</code> (the default) too — it's why flex items sometimes mysteriously fill their container height.</p>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">align-items: stretch (default)</p>
+        <pre class="code"><span class="prop">align-items</span>: stretch;
+<span class="com">/* items fill the cross axis */</span></pre>
+      </div>
+      <div class="result-frame">
+        <div class="ai-base ai-stretch">
+          <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">align-items: center &nbsp;<span style="color:var(--accent-strong)">★ vertical centring</span></p>
+        <pre class="code"><span class="prop">align-items</span>: center;</pre>
+      </div>
+      <div class="result-frame">
+        <div class="ai-base ai-center">
+          <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">align-items: flex-end</p>
+        <pre class="code"><span class="prop">align-items</span>: flex-end;</pre>
+      </div>
+      <div class="result-frame">
+        <div class="ai-base ai-end">
+          <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       §4  flex: 1   vs   flex: 1 1 240px
+       ============================================================ -->
+  <section class="lesson" id="s4">
+    <h2>4. flex: 1 &nbsp;vs&nbsp; flex: 1 1 240px</h2>
+    <p class="teach-note"><strong>The shorthand that confuses everyone.</strong> Explain it as <em>grow / shrink / basis</em>. <code>flex: 1</code> = equal share. <code>flex: 1 1 240px</code> = "at least 240px, then share what's left". Resize the window on the second demo to see items wrap to a new row when there isn't 240px each.</p>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">flex: 1 — equal share, no wrapping</p>
+        <pre class="code"><span class="sel">.flex-equal</span> {
+  <span class="prop">display</span>: flex;
+  <span class="prop">gap</span>: 1rem;
+}
+<span class="sel">.flex-equal .box</span> {
+  <span class="prop">flex</span>: 1;
+}</pre>
+      </div>
+      <div class="result-frame">
+        <div class="flex-equal">
+          <div class="box">A</div>
+          <div class="box">B</div>
+          <div class="box">C</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">flex: 1 1 240px — wraps when squeezed &nbsp;<span style="color:var(--accent-strong)">★ resize window</span></p>
+        <pre class="code"><span class="sel">.flex-wrap</span> {
+  <span class="prop">display</span>: flex;
+  <span class="prop">flex-wrap</span>: wrap;
+  <span class="prop">gap</span>: 1rem;
+}
+<span class="sel">.flex-wrap .box</span> {
+  <span class="prop">flex</span>: 1 1 240px;
+}</pre>
+      </div>
+      <div class="result-frame">
+        <div class="flex-wrap">
+          <div class="box">A</div>
+          <div class="box">B</div>
+          <div class="box">C</div>
+          <div class="box">D</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       §5  THREE CLASSIC PATTERNS
+       ============================================================ -->
+  <section class="lesson" id="s5">
+    <h2>5. The three Flexbox patterns you'll use daily</h2>
+    <p class="teach-note"><strong>These are the worksheet payoff.</strong> Every layout in Exercise 3.1 is one of these three. If a student remembers nothing else, they should remember these.</p>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">A. Navbar — logo left, links right</p>
+        <pre class="code"><span class="sel">.navbar</span> {
+  <span class="prop">display</span>: flex;
+  <span class="prop">justify-content</span>: space-between;
+  <span class="prop">align-items</span>: center;
+}</pre>
+      </div>
+      <div class="result-frame">
+        <div class="pat-navbar">
+          <span class="logo">SITELOGO</span>
+          <nav>
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">B. Card row that wraps</p>
+        <pre class="code"><span class="sel">.cards</span> {
+  <span class="prop">display</span>: flex;
+  <span class="prop">flex-wrap</span>: wrap;
+  <span class="prop">gap</span>: 1rem;
+}
+<span class="sel">.card</span> { <span class="prop">flex</span>: 1 1 200px; }</pre>
+      </div>
+      <div class="result-frame">
+        <div class="pat-cards">
+          <div class="card-mini">Card 1</div>
+          <div class="card-mini">Card 2</div>
+          <div class="card-mini">Card 3</div>
+          <div class="card-mini">Card 4</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">C. Hero — text centred both ways &nbsp;<span style="color:var(--accent-strong)">★ place-items trick</span></p>
+        <pre class="code"><span class="sel">.hero</span> {
+  <span class="prop">display</span>: grid;
+  <span class="prop">place-items</span>: center;
+  <span class="prop">min-height</span>: 200px;
+}</pre>
+      </div>
+      <div class="result-frame">
+        <div class="pat-hero">
+          <h3>Centred both ways</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       §6  CSS GRID GALLERY — THE STAR DEMO
+       ============================================================ -->
+  <section class="lesson" id="s6">
+    <h2>6. CSS Grid gallery — the responsive one-rule wonder</h2>
+    <p class="teach-note"><strong>The "wow" moment of the day.</strong> Slowly resize the browser window from wide to narrow. Count: 5 columns → 4 → 3 → 2 → 1. Then ask: "how many media queries did we write?" Zero. That's the sell.</p>
+
+    <div style="margin-bottom: 1.5rem;">
+      <p class="demo-label">auto-fit — surviving items stretch to fill space</p>
+      <pre class="code"><span class="sel">.gallery</span> {
+  <span class="prop">display</span>: grid;
+  <span class="prop">grid-template-columns</span>: repeat(auto-fit, minmax(180px, 1fr));
+  <span class="prop">gap</span>: 1rem;
+}</pre>
+    </div>
+    <div class="result-frame">
+      <div class="gallery-fit">
+        <div class="card"><div class="thumb"></div><h4>Project 1</h4><p>Short description here.</p></div>
+        <div class="card"><div class="thumb"></div><h4>Project 2</h4><p>Short description here.</p></div>
+        <div class="card"><div class="thumb"></div><h4>Project 3</h4><p>Short description here.</p></div>
+        <div class="card"><div class="thumb"></div><h4>Project 4</h4><p>Short description here.</p></div>
+        <div class="card"><div class="thumb"></div><h4>Project 5</h4><p>Short description here.</p></div>
+        <div class="card"><div class="thumb"></div><h4>Project 6</h4><p>Short description here.</p></div>
+      </div>
+    </div>
+
+    <div style="margin: 2rem 0 1.5rem;">
+      <p class="demo-label">auto-fill — keeps empty tracks, items stay at min size</p>
+      <pre class="code"><span class="sel">.gallery</span> {
+  <span class="prop">display</span>: grid;
+  <span class="prop">grid-template-columns</span>: repeat(auto-fill, minmax(180px, 1fr));
+  <span class="prop">gap</span>: 1rem;
+}</pre>
+    </div>
+    <div class="result-frame">
+      <div class="gallery-fill">
+        <div class="card"><div class="thumb"></div><h4>Project 1</h4><p>Short description here.</p></div>
+        <div class="card"><div class="thumb"></div><h4>Project 2</h4><p>Short description here.</p></div>
+        <div class="card"><div class="thumb"></div><h4>Project 3</h4><p>Short description here.</p></div>
+      </div>
+    </div>
+    <p style="font-size: 0.875rem; color: var(--ink-dim); margin-top: 0.75rem;">
+      ↑ On a wide screen, <code>auto-fill</code> leaves empty tracks on the right. <code>auto-fit</code> would stretch the three cards across.
+    </p>
+  </section>
+
+
+  <!-- ============================================================
+       §7  GRID TEMPLATE COLUMNS WITH FR
+       ============================================================ -->
+  <section class="lesson" id="s7">
+    <h2>7. Grid columns — fr units &amp; fixed widths</h2>
+    <p class="teach-note"><strong>The simpler grid pattern.</strong> Before <code>auto-fit</code>, you defined columns directly. <code>fr</code> = fraction of available space. Mix with <code>px</code> for sidebar-style layouts.</p>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">Three equal columns</p>
+        <pre class="code"><span class="prop">grid-template-columns</span>: 1fr 1fr 1fr;
+<span class="com">/* or: repeat(3, 1fr) */</span></pre>
+      </div>
+      <div class="result-frame">
+        <div class="grid-fr-1">
+          <div class="box">1fr</div><div class="box">1fr</div><div class="box">1fr</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">Middle column is twice as wide</p>
+        <pre class="code"><span class="prop">grid-template-columns</span>: 1fr 2fr 1fr;</pre>
+      </div>
+      <div class="result-frame">
+        <div class="grid-fr-2">
+          <div class="box">1fr</div><div class="box strong">2fr</div><div class="box">1fr</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">Fixed sidebar + flexible content</p>
+        <pre class="code"><span class="prop">grid-template-columns</span>: 200px 1fr;</pre>
+      </div>
+      <div class="result-frame">
+        <div class="grid-fr-3">
+          <div class="box">200px</div><div class="box strong">1fr</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       §8  MEDIA QUERIES — MOBILE-FIRST
+       ============================================================ -->
+  <section class="lesson" id="s8">
+    <h2>8. Media queries — mobile-first responsive</h2>
+    <p class="teach-note"><strong>Resize the window to see breakpoints fire.</strong> 1 col below 600px → 2 cols at 600–1024 → 4 cols at 1024+. Open DevTools device toolbar (Ctrl/Cmd-Shift-M) and toggle between iPhone SE / iPad / desktop presets.</p>
+
+    <pre class="code"><span class="com">/* Mobile first — default rules are for phones */</span>
+<span class="sel">.responsive-demo</span> {
+  <span class="prop">display</span>: grid;
+  <span class="prop">grid-template-columns</span>: 1fr;
+  <span class="prop">gap</span>: 1rem;
+}
+
+<span class="com">/* Tablet — ADD complexity */</span>
+@media (min-width: 600px) {
+  <span class="sel">.responsive-demo</span> { <span class="prop">grid-template-columns</span>: 1fr 1fr; }
+}
+
+<span class="com">/* Desktop — ADD more */</span>
+@media (min-width: 1024px) {
+  <span class="sel">.responsive-demo</span> { <span class="prop">grid-template-columns</span>: 1fr 1fr 1fr 1fr; }
+}</pre>
+
+    <div class="result-frame" style="margin-top: 1.5rem;">
+      <div class="responsive-demo">
+        <div class="resp-card"><div class="num">1</div>Card</div>
+        <div class="resp-card"><div class="num">2</div>Card</div>
+        <div class="resp-card"><div class="num">3</div>Card</div>
+        <div class="resp-card"><div class="num">4</div>Card</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       §9  CLAMP() — FLUID TYPOGRAPHY
+       ============================================================ -->
+  <section class="lesson" id="s9">
+    <h2>9. clamp() — fluid typography without breakpoints</h2>
+    <p class="teach-note"><strong>Resize the window to watch this headline grow.</strong> <code>clamp(min, ideal, max)</code> = never smaller than min, never bigger than max, but scales smoothly between. Replaces 4–5 media queries for typography.</p>
+
+    <div class="demo-pair">
+      <div>
+        <p class="demo-label">Three values: floor, ideal, ceiling</p>
+        <pre class="code"><span class="sel">.headline</span> {
+  <span class="prop">font-size</span>: clamp(1.25rem, 5vw, 3rem);
+}
+<span class="com">/* never below 20px        */</span>
+<span class="com">/* tries to be 5% of vw    */</span>
+<span class="com">/* never above 48px        */</span></pre>
+      </div>
+      <div class="result-frame">
+        <h3 class="clamp-headline">This headline scales fluidly</h3>
+        <p class="clamp-meter">↔ Resize the browser to see it change</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       §10  HOVER + TRANSITIONS
+       ============================================================ -->
+  <section class="lesson" id="s10">
+    <h2>10. Hover transitions — the polish layer</h2>
+    <p class="teach-note"><strong>Hover each card.</strong> 200ms is the sweet spot. Faster feels snappy, slower feels sluggish. Always animate <code>transform</code> — never <code>width</code> or <code>top</code> (forces relayout = jank).</p>
+
+    <div style="margin-bottom: 1.5rem;">
+      <p class="demo-label">Compare transition durations — hover each card</p>
+      <pre class="code"><span class="sel">.card</span> { <span class="prop">transition</span>: transform 0.2s ease; }
+<span class="sel">.card:hover</span> { <span class="prop">transform</span>: translateY(-4px); }</pre>
+    </div>
+    <div class="result-frame">
+      <div class="hover-demo">
+        <div class="hover-card t-none">No transition<br><small>(jumpy)</small></div>
+        <div class="hover-card t-fast">100ms<br><small>(snappy)</small></div>
+        <div class="hover-card t-mid">200ms ★<br><small>(sweet spot)</small></div>
+        <div class="hover-card t-slow">600ms<br><small>(sluggish)</small></div>
+      </div>
+    </div>
+
+    <div style="margin: 2rem 0 1.5rem;">
+      <p class="demo-label">Why transform, not width — hover both to feel the difference</p>
+      <pre class="code"><span class="com">/* GOOD — animates a transform (cheap, smooth) */</span>
+<span class="sel">.good:hover</span> { <span class="prop">transform</span>: scale(1.05); }
+
+<span class="com">/* BAD — animates width (triggers layout — janky) */</span>
+<span class="sel">.bad:hover</span>  { <span class="prop">width</span>: 105%; }</pre>
+    </div>
+    <div class="result-frame">
+      <div class="jank-demo">
+        <div class="jank-card good">GOOD<br><small>transform: scale</small></div>
+        <div class="jank-card bad">BAD<br><small>animates width</small></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       §11  COMMON PITFALL — flex item won't shrink
+       ============================================================ -->
+  <section class="lesson" id="s11">
+    <h2>11. Common pitfall — flex items won't shrink past their content</h2>
+    <p class="teach-note"><strong>This will trip up half the class on Exercise 3.3.</strong> A flex item containing a long URL or unbreakable text refuses to shrink. The default <code>min-width</code> is <code>auto</code>, which means "as wide as my content." Fix: <code>min-width: 0</code>.</p>
+
+    <div style="margin-bottom: 1.5rem;">
+      <p class="demo-label">The fix — uncomment min-width: 0 in DevTools</p>
+      <pre class="code"><span class="sel">.shrink-demo .item</span> {
+  <span class="prop">flex</span>: 1;
+  <span class="prop">overflow</span>: hidden;
+  <span class="com">/* min-width: 0;  ← uncomment in DevTools */</span>
+}</pre>
+    </div>
+    <div class="result-frame">
+      <div class="shrink-demo">
+        <div class="item"><div class="url">https://very-long-subdomain.example-domain.com/api/v1/resource</div></div>
+        <div class="item"><div class="url">short.url</div></div>
+        <div class="item"><div class="url">short.url</div></div>
+      </div>
+    </div>
+    <p style="font-size: 0.875rem; color: var(--ink-dim); margin-top: 0.75rem;">
+      The first item is hogging space because its content is unbreakable. In DevTools, find <code>.shrink-demo .item</code> and add <code>min-width: 0</code> — watch all three items become equal.
+    </p>
+  </section>
+
+  <footer style="text-align: center; padding: 2rem; color: var(--ink-dim); font-size: 0.875rem;">
+    Day 3 · Modern CSS · Live Demo File
+  </footer>
+
+</body>
+</html>
