@@ -25,7 +25,11 @@ body {
   display: flex;
   gap: 1rem;
   align-items: flex-start;       /* keeps boxes at the top */
-  justify-content: flex-start;   /* keeps boxes to the left (this is the default) */
+  /* justify-content: flex-start;   keeps boxes to the left (this is the default) */
+  /* justify-content: space-evenly;
+   */
+   justify-content: space-between;
+
 }
 
 /* the three blue numbered boxes */
